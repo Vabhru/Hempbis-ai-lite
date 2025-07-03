@@ -1,4 +1,4 @@
-import winston from 'winston';
+import winston, { transport as TransportStream } from 'winston';
 import DailyRotateFile from 'winston-daily-rotate-file';
 import path from 'path';
 import { config } from '../config/config';
@@ -13,7 +13,7 @@ const logFormat = printf(({ level, message, timestamp, ...meta }) => {
 });
 
 // Create transports
-const transports = [
+const transportsArray: TransportStream[] = [ // Explicitly type the array
   // Write all logs with level `error` and below to `error.log`
   new DailyRotateFile({
     filename: path.join('logs', 'error-%DATE%.log'),
@@ -33,7 +33,7 @@ const transports = [
 
 // If we're not in production, also log to console
 if (config.nodeEnv !== 'production') {
-  transports.push(
+  transportsArray.push( // Push to the correctly typed array
     new winston.transports.Console({
       format: combine(
         colorize(),
@@ -54,7 +54,7 @@ const logger = winston.createLogger({
     json()
   ),
   defaultMeta: { service: 'hempbis-ai-api' },
-  transports,
+  transports: transportsArray, // Use the typed array
 });
 
 export { logger };
